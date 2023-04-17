@@ -12,76 +12,77 @@
 
 #include "pipex.h"
 
-void	child(int argc, char **argv, char **envp, int *fd, int cmd)
+void	multi_cmds_process(char **argv, char **envp, int cmd)
 {
 	char	*cmdpath;
 	char	**cmdarg;
-	int		file1;
-	int		file2;
+	int		fd[2];
+	pid_t	pid;
 
-	file1 = open(argv[1], O_RDONLY, 0644);
-	file2 = open(argv[argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (file1 < 0)
+	if (pipe(fd) == -1)
 		put_error();
-	cmdpath = cmd_path(argv[cmd], envp);
-	if (!cmdpath)
+	pid = fork();
+	if (pid < 0)
 		put_error();
-	cmdarg = ft_split(argv[cmd], ' ');
-	if (cmd == 2)
+	if (pid == 0)
 	{
-		dup2(file1, STDIN_FILENO);
+		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
+		cmdpath = cmd_path(argv[cmd], envp);
+		if (!cmdpath)
+			put_error();
+		cmdarg = ft_split(argv[cmd], ' ');
+		execve(cmdpath, cmdarg, NULL);
+		put_error();
 	}
-	else
-	{
-		dup2(fd[2], STDIN_FILENO);
-		dup2(fd[3], STDOUT_FILENO);
-	}
-	// close(fd[0]);
-	execve(cmdpath, cmdarg, NULL);
+	close(fd[1]);
+	dup2(fd[0], STDIN_FILENO);
 }
-void	parent(int argc, char **argv, char **envp, int *fd, int cmd)
+
+void	last_cmd(char *argv, char **envp)
 {
 	char	*cmdpath;
 	char	**cmdarg;
-	int		file2;
+	pid_t	pid;
 
-	cmdpath = cmd_path(argv[cmd], envp);
-	cmdarg = ft_split(argv[cmd], ' ');
-	file2 = open(argv[argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (!cmdpath)
+	pid = fork();
+	if (pid == 0)
+	{
+		cmdpath = cmd_path(argv, envp);
+		if (!cmdpath)
+			put_error();
+		cmdarg = ft_split(argv, ' ');
+		execve(cmdpath, cmdarg, NULL);
 		put_error();
-	dup2(file2, STDOUT_FILENO);
-	dup2(fd[0], STDIN_FILENO);
-	close(fd[1]);
-	// execve(cmdpath, cmdarg, NULL);
+	}
+	waitpid(pid, NULL, 0);
+	while (wait(NULL) != -1)
+		;
 }
+
 void	check_leaks(void)
 {
 	system("leaks -q pipex");
 }
+
 int	main(int argc, char **argv, char **envp)
 {
-	int fd[4];
-	int i;
-	pid_t pid;
+	int	i;
+	int	file1;
+	int	file2;
 
-	// atexit(check_leaks);
 	if (argc > 4)
 	{
 		i = 2;
-		if (pipe(fd) < 0)
-			put_error();
+		file1 = open(argv[1], O_RDONLY, 0644);
+		file2 = open(argv[argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		if (file1 < 0 || file2 < 0)
+			perror("");
+		dup2(file1, STDIN_FILENO);
 		while (i < argc - 2)
-		{
-			pid = fork();
-			if (pid < 0)
-				put_error();
-			if (pid == 0)
-				child(argc, argv, envp, fd, i);
-			waitpid(pid, NULL, 0);
-			parent(argc, argv, envp, fd, ++i);
-		}
+			multi_cmds_process(argv, envp, i++);
+		dup2(file2, STDOUT_FILENO);
+		last_cmd(argv[argc - 2], envp);
 	}
 	else
 	{

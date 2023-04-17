@@ -12,21 +12,11 @@
 
 #include "pipex.h"
 
-/* 
-	./pipex infile cmd1 cmd2 outfile
-	./pipex infile "ls -l" "wc -l" outfile
-	< infile cmd1 | cmd2 > outfile
-
-	int execve(const char *path, char *const argv[], char *envp[]);
-
- */
-
 void	first_child(int *fd, char **argv, char **envp)
 {
 	int		file1;
 	char	*cmdpath;
 	char	**cmd_arg;
-
 
 	file1 = open(argv[1], O_RDONLY, 0644);
 	if (file1 < 0)
@@ -35,10 +25,17 @@ void	first_child(int *fd, char **argv, char **envp)
 	dup2(file1, STDIN_FILENO);
 	close(fd[0]);
 	cmdpath = cmd_path(argv[2], envp);
+	if (!cmdpath)
+	{
+		if (access(argv[2], F_OK) == -1)
+			put_error();
+		cmdpath = ft_strdup(argv[2]);
+	}
 	cmd_arg = ft_split(argv[2], ' ');
-	if (execve(cmdpath, cmd_arg, NULL) == -1)
-		put_error();
+	execve(cmdpath, cmd_arg, NULL);
+	put_error();
 }
+
 void	parent(int *fd, char **argv, char **envp)
 {
 	int		file2;
@@ -52,22 +49,23 @@ void	parent(int *fd, char **argv, char **envp)
 	dup2(file2, STDOUT_FILENO);
 	close(fd[1]);
 	cmdpath = cmd_path(argv[3], envp);
-	// if (!cmdpath)
-	// 	put_error();
+	if (!cmdpath)
+	{
+		if (access(argv[3], F_OK) == -1)
+			put_error();
+		cmdpath = ft_strdup(argv[3]);
+	}
 	cmd_arg = ft_split(argv[3], ' ');
-	if (execve(cmdpath, cmd_arg, NULL) == -1)
-		put_error();
+	execve(cmdpath, cmd_arg, NULL);
+	put_error();
 }
-void check_leaks(void)
-{
-	system("leaks -q pipex");
-}
+
 int	main(int argc, char **argv, char **envp)
 {
-	int fd[2];
-	pid_t pid;
+	int		fd[2];
+	pid_t	pid;
 
-	if (argc != 5)
+	if (argc < 5)
 	{
 		ft_putstr_fd("invalid parameter", STDERR_FILENO);
 		exit(EXIT_FAILURE);

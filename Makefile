@@ -11,8 +11,7 @@
 # **************************************************************************** #
 
 NAME	:= pipex
-BONUS	:= bonus
-CFLAGS	:= -Wextra -Wall -Werror -g -fsanitize=address
+CFLAGS	:= -Wextra -Wall -Werror
 
 #Lib
 LIB_PRINTF	:= ./lib/ft_printf/libftprintf.a
@@ -31,7 +30,7 @@ BONUS_FILES := bonus_pipex.c parsing_path.c
 BONUS_SRCS	:= $(addprefix src/, $(BONUS_FILES))
 BONUS_OBJS = $(addprefix $(OBJ_DIR)/, $(BONUS_SRCS:.c=.o))
 
-all:  $(NAME)
+all:  $(NAME) bonus
 
 $(OBJ_DIR)/%.o: %.c
 		@mkdir -p $(@D)
@@ -40,8 +39,8 @@ $(OBJ_DIR)/%.o: %.c
 $(NAME):	 $(LIB_PRINTF) $(OBJS)
 	$(CC) $(CFLAGS) $(HEADERS) $(OBJS) $(LIBS) $(LIB_PRINTF)  -o $(NAME)
 
-$(BONUS):		$(LIB_PRINTF) $(BONUS_OBJS)
-	$(CC) $(CFLAGS) $(INCLUDE) $(BONUS_OBJS) $(LIBS) $(LIB_PRINTF) -o $(BONUS)
+bonus:		$(LIB_PRINTF) $(BONUS_OBJS)
+	$(CC) $(CFLAGS) $(INCLUDE) $(BONUS_OBJS) $(LIBS) $(LIB_PRINTF) -o $(NAME)
 
 $(LIB_PRINTF):
 	@make -C $(PRINTF_DIR)
@@ -55,6 +54,6 @@ fclean: clean
 	@rm -f $(NAME) $(BONUS)
 	@make fclean -C $(PRINTF_DIR)
 
-re: clean all
+re: fclean all
 
 .PHONY: all, clean, fclean, re
