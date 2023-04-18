@@ -55,8 +55,8 @@ char	*cmd_path(char *argv, char **envp)
 
 void	put_error(void)
 {
-	perror("");
-	exit(EXIT_FAILURE);
+	perror(NULL);
+	exit(2);
 }
 
 void	free_all(char **str)
@@ -67,4 +67,23 @@ void	free_all(char **str)
 	while (str[i++])
 		free(str[i]);
 	free(str);
+}
+
+int	open_file(char *argv, int in_out)
+{
+	int	file;
+
+	if (in_out == 1)
+	{
+		file = open(argv, O_RDONLY, 0644);
+		if (file < 0)
+			perror(NULL);
+	}
+	else
+	{
+		file = open(argv, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		if (file < 0)
+			perror(NULL);
+	}
+	return (file);
 }

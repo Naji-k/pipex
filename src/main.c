@@ -65,7 +65,7 @@ int	main(int argc, char **argv, char **envp)
 	int		fd[2];
 	pid_t	pid;
 
-	if (argc < 5)
+	if (argc != 5)
 	{
 		ft_putstr_fd("invalid parameter", STDERR_FILENO);
 		exit(EXIT_FAILURE);

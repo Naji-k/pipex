@@ -23,5 +23,6 @@ char	*get_env_path(char **envp);
 char	*cmd_path(char *argv, char **envp);
 void	put_error(void);
 void	free_all(char **str);
+int		open_file(char *argv, int in_out);
 
 #endif

@@ -60,29 +60,46 @@ void	last_cmd(char *argv, char **envp)
 		;
 }
 
-void	check_leaks(void)
+void	parsing_input(int argc, char **argv, char **envp)
 {
-	system("leaks -q pipex");
+	char	s[10000];
+	int		n;
+	int		len_limiter;
+	int		i;
+	int		file1;
+	int		file2;
+
+	file1 = 0;
+	n = 1;
+	if (ft_strncmp(argv[1], "here_doc", 8) == 0)
+	{
+		len_limiter = ft_strlen(argv[2]);
+		while (n > 0 && ft_strncmp(s, argv[2], len_limiter) != 0)
+			n = read(1, &s, 10000);
+		i = 3;
+		dup2(STDIN_FILENO, file1);
+		close(file1);
+	}
+	else
+	{
+		i = 2;
+		file1 = open_file(argv[1], 1);
+	}
+	dup2(file1, STDIN_FILENO);
+	file2 = open_file(argv[argc - 1], 2);
+	while (i < argc - 2)
+		multi_cmds_process(argv, envp, i++);
+	dup2(file2, STDOUT_FILENO);
+	close(file1);
+	close(file2);
+	last_cmd(argv[argc - 2], envp);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	i;
-	int	file1;
-	int	file2;
-
 	if (argc > 4)
 	{
-		i = 2;
-		file1 = open(argv[1], O_RDONLY, 0644);
-		file2 = open(argv[argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-		if (file1 < 0 || file2 < 0)
-			perror("");
-		dup2(file1, STDIN_FILENO);
-		while (i < argc - 2)
-			multi_cmds_process(argv, envp, i++);
-		dup2(file2, STDOUT_FILENO);
-		last_cmd(argv[argc - 2], envp);
+		parsing_input(argc, argv, envp);
 	}
 	else
 	{

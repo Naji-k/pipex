@@ -30,7 +30,7 @@ BONUS_FILES := bonus_pipex.c parsing_path.c
 BONUS_SRCS	:= $(addprefix src/, $(BONUS_FILES))
 BONUS_OBJS = $(addprefix $(OBJ_DIR)/, $(BONUS_SRCS:.c=.o))
 
-all:  $(NAME) bonus
+all:  $(NAME)
 
 $(OBJ_DIR)/%.o: %.c
 		@mkdir -p $(@D)
