@@ -18,9 +18,7 @@ void	first_child(int *fd, char **argv, char **envp)
 	char	*cmdpath;
 	char	**cmd_arg;
 
-	file1 = open(argv[1], O_RDONLY, 0644);
-	if (file1 < 0)
-		perror("");
+	file1 = open_file(argv[1], 1);
 	dup2(fd[1], STDOUT_FILENO);
 	dup2(file1, STDIN_FILENO);
 	close(fd[0]);
@@ -28,12 +26,12 @@ void	first_child(int *fd, char **argv, char **envp)
 	if (!cmdpath)
 	{
 		if (access(argv[2], F_OK) == -1)
-			put_error();
+			put_error("command not found");
 		cmdpath = ft_strdup(argv[2]);
 	}
 	cmd_arg = ft_split(argv[2], ' ');
 	execve(cmdpath, cmd_arg, NULL);
-	put_error();
+	put_error(NULL);
 }
 
 void	parent(int *fd, char **argv, char **envp)
@@ -42,9 +40,7 @@ void	parent(int *fd, char **argv, char **envp)
 	char	*cmdpath;
 	char	**cmd_arg;
 
-	file2 = open(argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (file2 < 0)
-		put_error();
+	file2 = open_file(argv[4], 2);
 	dup2(fd[0], STDIN_FILENO);
 	dup2(file2, STDOUT_FILENO);
 	close(fd[1]);
@@ -52,12 +48,12 @@ void	parent(int *fd, char **argv, char **envp)
 	if (!cmdpath)
 	{
 		if (access(argv[3], F_OK) == -1)
-			put_error();
+			put_error("command not found");
 		cmdpath = ft_strdup(argv[3]);
 	}
 	cmd_arg = ft_split(argv[3], ' ');
 	execve(cmdpath, cmd_arg, NULL);
-	put_error();
+	put_error(NULL);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -73,10 +69,10 @@ int	main(int argc, char **argv, char **envp)
 	else
 	{
 		if (pipe(fd) == -1)
-			put_error();
+			put_error(NULL);
 		pid = fork();
 		if (pid < 0)
-			put_error();
+			put_error(NULL);
 		if (pid == 0)
 			first_child(fd, argv, envp);
 		else

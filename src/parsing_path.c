@@ -53,10 +53,10 @@ char	*cmd_path(char *argv, char **envp)
 	return (NULL);
 }
 
-void	put_error(void)
+void	put_error(char *msg)
 {
-	perror(NULL);
-	exit(2);
+	perror(msg);
+	exit(EXIT_FAILURE);
 }
 
 void	free_all(char **str)
@@ -77,7 +77,7 @@ int	open_file(char *argv, int in_out)
 	{
 		file = open(argv, O_RDONLY, 0644);
 		if (file < 0)
-			perror(NULL);
+			put_error(NULL);
 	}
 	else
 	{
