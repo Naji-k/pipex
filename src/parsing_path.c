@@ -20,7 +20,7 @@ char	*get_env_path(char **envp)
 	while (envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-			return (envp[i]);
+			return (&envp[i][5]);
 		i++;
 	}
 	return (NULL);
@@ -65,8 +65,8 @@ void	free_all(char **str)
 {
 	int	i;
 
-	i = 0;
-	while (str[i++])
+	i = -1;
+	while (str[++i])
 		free(str[i]);
 	free(str);
 }

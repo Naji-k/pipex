@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include <unistd.h>
 
 void	multi_cmds_process(char **argv, char **envp, int cmd)
 {
@@ -94,9 +93,7 @@ void	multi_pipex(int argc, char **argv, char **envp, int i)
 	if (file1 != -1)
 		dup2(file1, STDIN_FILENO);
 	else
-	{
 		perror(NULL);
-	}
 	file2 = open_file(argv[argc - 1], 2);
 	while (i < argc - 2)
 		multi_cmds_process(argv, envp, i++);
