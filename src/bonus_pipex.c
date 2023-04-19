@@ -110,6 +110,8 @@ int	main(int argc, char **argv, char **envp)
 {
 	if (argc > 4)
 	{
+		if (*argv[1] == '\0' || *argv[argc - 1] == '\0')
+			exit(EXIT_FAILURE);
 		parsing_input(argc, argv, envp);
 	}
 	else

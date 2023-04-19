@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 NAME	:= pipex
-CFLAGS	:= -Wextra -Wall -Werror
+CFLAGS	:= -Wextra -Wall -Werror 
 
 #Lib
 LIB_PRINTF	:= ./lib/ft_printf/libftprintf.a
@@ -34,7 +34,7 @@ all:  $(NAME)
 
 $(OBJ_DIR)/%.o: %.c
 		@mkdir -p $(@D)
-		@$(CC) $(CFLAGS) $(HEADERS) -o $@ -c $<  && printf "Compiling: $(notdir $<)"
+		@$(CC) $(CFLAGS) $(HEADERS) -o $@ -c $<  && printf "Compiling: $(notdir $<)\n"
 
 $(NAME):	 $(LIB_PRINTF) $(OBJS)
 	$(CC) $(CFLAGS) $(HEADERS) $(OBJS) $(LIBS) $(LIB_PRINTF)  -o $(NAME)

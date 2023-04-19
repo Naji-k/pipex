@@ -34,6 +34,8 @@ char	*cmd_path(char *argv, char **envp)
 	char	**my_paths;
 	char	*path_from_env;
 
+	if (*argv == '\0')
+		return (NULL);
 	path_from_env = get_env_path(envp);
 	if (path_from_env == NULL)
 		return (NULL);

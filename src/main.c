@@ -66,20 +66,19 @@ int	main(int argc, char **argv, char **envp)
 		ft_putstr_fd("invalid parameter", STDERR_FILENO);
 		exit(EXIT_FAILURE);
 	}
+	if (*argv[1] == '\0' || *argv[4] == '\0')
+		return (1);
+	if (pipe(fd) == -1)
+		put_error(NULL);
+	pid = fork();
+	if (pid < 0)
+		put_error(NULL);
+	if (pid == 0)
+		first_child(fd, argv, envp);
 	else
 	{
-		if (pipe(fd) == -1)
-			put_error(NULL);
-		pid = fork();
-		if (pid < 0)
-			put_error(NULL);
-		if (pid == 0)
-			first_child(fd, argv, envp);
-		else
-		{
-			waitpid(pid, NULL, 0);
-			parent(fd, argv, envp);
-		}
+		waitpid(pid, NULL, 0);
+		parent(fd, argv, envp);
 	}
 	return (0);
 }
