@@ -55,37 +55,9 @@ char	*cmd_path(char *argv, char **envp)
 	return (NULL);
 }
 
-void	put_error(char *msg)
+char	*check_current_dir(char *argv)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
-}
-
-void	free_all(char **str)
-{
-	int	i;
-
-	i = -1;
-	while (str[++i])
-		free(str[i]);
-	free(str);
-}
-
-int	open_file(char *argv, int in_out)
-{
-	int	file;
-
-	if (in_out == 1)
-	{
-		file = open(argv, O_RDONLY, 0644);
-		if (file < 0)
-			put_error(NULL);
-	}
-	else
-	{
-		file = open(argv, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-		if (file < 0)
-			perror(NULL);
-	}
-	return (file);
+	if (access(argv, F_OK) == -1)
+		put_error("command not found\n");
+	return (argv);
 }

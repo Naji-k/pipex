@@ -21,26 +21,33 @@ PRINTF_DIR = ./lib/ft_printf
 LIBFT_DIR = ./lib/ft_printf/libft
 OBJ_DIR = obj
 
-FILES	:= main.c parsing_path.c
+#HEADERS
 HEADERS	:= -I ./include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR)
-SRCS	:= $(addprefix src/, $(FILES))
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
-BONUS_FILES := bonus_pipex.c parsing_path.c
-BONUS_SRCS	:= $(addprefix src/, $(BONUS_FILES))
-BONUS_OBJS = $(addprefix $(OBJ_DIR)/, $(BONUS_SRCS:.c=.o))
+#.c Files
+FILES	:= main.c parsing_path.c pipex_utils.c
+BONUS_FILES := bonus_pipex.c parsing_path.c pipex_utils.c
+
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
+
+ifdef BONUS
+SRC_FILES   := $(addprefix src/, $(BONUS_FILES))
+else
+SRC_FILES   := $(addprefix src/, $(FILES))
+endif
+
 
 all:  $(NAME)
-
-$(OBJ_DIR)/%.o: %.c
-		@mkdir -p $(@D)
-		@$(CC) $(CFLAGS) $(HEADERS) -o $@ -c $<  && printf "Compiling: $(notdir $<)\n"
 
 $(NAME):	 $(LIB_PRINTF) $(OBJS)
 	$(CC) $(CFLAGS) $(HEADERS) $(OBJS) $(LIBS) $(LIB_PRINTF)  -o $(NAME)
 
-bonus:		$(LIB_PRINTF) $(BONUS_OBJS)
-	$(CC) $(CFLAGS) $(INCLUDE) $(BONUS_OBJS) $(LIBS) $(LIB_PRINTF) -o $(NAME)
+bonus:
+	@$(MAKE) BONUS=1 all
+
+$(OBJ_DIR)/%.o: %.c
+		@mkdir -p $(@D)
+		@$(CC) $(CFLAGS) $(HEADERS) -o $@ -c $<  && printf "Compiling: $(notdir $<)\n"
 
 $(LIB_PRINTF):
 	@make -C $(PRINTF_DIR)

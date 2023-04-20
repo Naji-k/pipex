@@ -19,19 +19,17 @@ void	first_child(int *fd, char **argv, char **envp)
 	char	**cmd_arg;
 
 	file1 = open_file(argv[1], 1);
-	dup2(fd[1], STDOUT_FILENO);
-	dup2(file1, STDIN_FILENO);
+	if (dup2(fd[1], STDOUT_FILENO) == -1)
+		put_error("dup2 fail\n");
+	if (dup2(file1, STDIN_FILENO) == -1)
+		put_error("dup2 fail\n");
 	close(fd[0]);
 	cmdpath = cmd_path(argv[2], envp);
 	if (!cmdpath)
-	{
-		if (access(argv[2], F_OK) == -1)
-			put_error("command not found");
-		cmdpath = ft_strdup(argv[2]);
-	}
+		cmdpath = check_current_dir(argv[2]);
 	cmd_arg = ft_split(argv[2], ' ');
 	execve(cmdpath, cmd_arg, NULL);
-	put_error(NULL);
+	put_error("execve fail\n");
 }
 
 void	parent(int *fd, char **argv, char **envp)
@@ -41,19 +39,17 @@ void	parent(int *fd, char **argv, char **envp)
 	char	**cmd_arg;
 
 	file2 = open_file(argv[4], 2);
-	dup2(fd[0], STDIN_FILENO);
-	dup2(file2, STDOUT_FILENO);
+	if (dup2(fd[0], STDIN_FILENO) == -1)
+		put_error("dup2 fail\n");
+	if (dup2(file2, STDOUT_FILENO) == -1)
+		put_error("dup2 fail\n");
 	close(fd[1]);
 	cmdpath = cmd_path(argv[3], envp);
 	if (!cmdpath)
-	{
-		if (access(argv[3], F_OK) == -1)
-			put_error("command not found");
-		cmdpath = ft_strdup(argv[3]);
-	}
+		cmdpath = check_current_dir(argv[3]);
 	cmd_arg = ft_split(argv[3], ' ');
 	execve(cmdpath, cmd_arg, NULL);
-	put_error(NULL);
+	put_error("execve fail\n");
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -69,10 +65,10 @@ int	main(int argc, char **argv, char **envp)
 	if (*argv[1] == '\0' || *argv[4] == '\0')
 		return (1);
 	if (pipe(fd) == -1)
-		put_error(NULL);
+		put_error("pipe\n");
 	pid = fork();
 	if (pid < 0)
-		put_error(NULL);
+		put_error("pipe\n");
 	if (pid == 0)
 		first_child(fd, argv, envp);
 	else

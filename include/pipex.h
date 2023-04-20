@@ -22,6 +22,9 @@
 //parsing
 char	*get_env_path(char **envp);
 char	*cmd_path(char *argv, char **envp);
+char	*check_current_dir(char *argv);
+
+//utils
 void	put_error(char *msg);
 void	free_all(char **str);
 int		open_file(char *argv, int in_out);

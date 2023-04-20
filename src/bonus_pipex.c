@@ -20,20 +20,21 @@ void	multi_cmds_process(char **argv, char **envp, int cmd)
 	pid_t	pid;
 
 	if (pipe(fd) == -1)
-		put_error(NULL);
+		put_error("pipe\n");
 	pid = fork();
 	if (pid < 0)
-		put_error(NULL);
+		put_error("fork\n");
 	if (pid == 0)
 	{
 		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
+		if (dup2(fd[1], STDOUT_FILENO) == -1)
+			put_error("dup2 fail\n");
 		cmdpath = cmd_path(argv[cmd], envp);
 		if (!cmdpath)
-			put_error("command not found");
+			cmdpath = check_current_dir(argv[cmd]);
 		cmdarg = ft_split(argv[cmd], ' ');
 		execve(cmdpath, cmdarg, NULL);
-		put_error(NULL);
+		put_error("execve fail\n");
 	}
 	close(fd[1]);
 	dup2(fd[0], STDIN_FILENO);
@@ -50,10 +51,10 @@ void	last_cmd(char *argv, char **envp)
 	{
 		cmdpath = cmd_path(argv, envp);
 		if (!cmdpath)
-			put_error("command not found");
+			cmdpath = check_current_dir(argv);
 		cmdarg = ft_split(argv, ' ');
 		execve(cmdpath, cmdarg, NULL);
-		put_error(NULL);
+		put_error("execve fail\n");
 	}
 	waitpid(pid, NULL, 0);
 }
@@ -74,7 +75,8 @@ void	parsing_input(int argc, char **argv, char **envp)
 		while (n > 0 && ft_strncmp(s, argv[2], len_limiter) != 0)
 		{
 			n = read(1, &s, 10000);
-			write(file1, &s, n);
+			if (ft_strncmp(s, argv[2], len_limiter) != 0)
+				write(file1, &s, n);
 		}
 		close(file1);
 		i = 3;
@@ -91,13 +93,17 @@ void	multi_pipex(int argc, char **argv, char **envp, int i)
 
 	file1 = open(argv[1], O_RDONLY, 0644);
 	if (file1 != -1)
-		dup2(file1, STDIN_FILENO);
+	{
+		if (dup2(file1, STDIN_FILENO) == -1)
+			put_error("dup2 fail\n");
+	}
 	else
 		perror(NULL);
 	file2 = open_file(argv[argc - 1], 2);
 	while (i < argc - 2)
 		multi_cmds_process(argv, envp, i++);
-	dup2(file2, STDOUT_FILENO);
+	if (dup2(file2, STDOUT_FILENO) == -1)
+		put_error("dup2 fail\n");
 	close(file1);
 	close(file2);
 	last_cmd(argv[argc - 2], envp);
