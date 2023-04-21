@@ -22,7 +22,7 @@ LIBFT_DIR = ./lib/ft_printf/libft
 OBJ_DIR = obj
 
 #HEADERS
-HEADERS	:= -I ./include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR)
+HEADERS	:= -I ./include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR)/include
 
 #.c Files
 FILES	:= main.c parsing_path.c pipex_utils.c

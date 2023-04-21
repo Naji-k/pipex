@@ -17,7 +17,7 @@ LIB_LIBFT = $(LIBFT_DIR)/libft.a
 AR = ar
 CC = cc
 
-INCLUDE = -Iinclude -Ilibft
+INCLUDE = -Iinclude -Ilibft/include
 # Directories
 LIBFT_DIR = ./libft
 OBJ_DIR = obj
