@@ -102,10 +102,10 @@ void	multi_pipex(int argc, char **argv, char **envp, int i)
 	file2 = open_file(argv[argc - 1], 2);
 	while (i < argc - 1)
 		multi_cmds_process(argv, envp, i++);
-	// if (dup2(file2, STDOUT_FILENO) == -1)
-	// 	put_error("dup2 fail\n");
-	// close(file1);
-	// close(file2);
+	if (dup2(file2, STDOUT_FILENO) == -1)
+		put_error("dup2 fail\n");
+	close(file1);
+	close(file2);
 	last_cmd(argv[argc - 2], envp);
 }
 
